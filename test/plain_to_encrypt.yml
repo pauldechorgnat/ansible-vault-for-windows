@@ -1,0 +1,6 @@
+---
+# This file is intentionally NOT encrypted.
+# Use it to test "Ansible Vault: Encrypt File".
+db_password: my-database-password
+api_key: my-api-key-12345
+smtp_password: hunter2

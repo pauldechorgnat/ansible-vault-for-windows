@@ -1,0 +1,6 @@
+.gitignore
+.vscode/**
+node_modules/**
+test/**
+**/*.test.js
+**/.eslintrc*

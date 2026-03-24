@@ -1,0 +1,171 @@
+{
+    "name": "ansible-vault-for-windows",
+    "displayName": "Ansible Vault for Windows",
+    "description": "Read, edit, and create Ansible Vault files in VS Code without any external dependencies. Works on Windows without Python or the ansible CLI.",
+    "version": "0.1.0",
+    "publisher": "ansible-vault-for-windows",
+    "license": "MIT",
+    "categories": ["Other"],
+    "keywords": ["ansible", "vault", "encryption", "aes256", "security", "devops", "windows"],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ansible-vault-for-windows/ansible-vault-for-windows"
+    },
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "activationEvents": [
+        "onStartupFinished",
+        "onFileSystem:vault"
+    ],
+    "main": "./src/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "ansible-vault.openDecrypted",
+                "title": "Ansible Vault: Open Decrypted",
+                "icon": "$(unlock)"
+            },
+            {
+                "command": "ansible-vault.viewDecryptedInline",
+                "title": "Ansible Vault: Preview Decrypted (read-only)",
+                "icon": "$(eye)"
+            },
+            {
+                "command": "ansible-vault.encryptFile",
+                "title": "Ansible Vault: Encrypt File",
+                "icon": "$(lock)"
+            },
+            {
+                "command": "ansible-vault.rekey",
+                "title": "Ansible Vault: Re-key (Change Password)",
+                "icon": "$(key)"
+            },
+            {
+                "command": "ansible-vault.newVault",
+                "title": "Ansible Vault: New Encrypted File",
+                "icon": "$(add)"
+            },
+            {
+                "command": "ansible-vault.scanWorkspace",
+                "title": "Ansible Vault: Scan Workspace for Unencrypted Vaults",
+                "icon": "$(search)"
+            },
+            {
+                "command": "ansible-vault.installGitHook",
+                "title": "Ansible Vault: Install Git Pre-commit Hook",
+                "icon": "$(git-commit)"
+            },
+            {
+                "command": "ansible-vault.clearCachedPasswords",
+                "title": "Ansible Vault: Clear Cached Passwords",
+                "icon": "$(clear-all)"
+            }
+        ],
+        "configuration": {
+            "title": "Ansible Vault",
+            "properties": {
+                "ansibleVault.rememberPassword": {
+                    "type": "string",
+                    "enum": ["never", "session", "keychain"],
+                    "enumDescriptions": [
+                        "Ask for the password every time",
+                        "Remember in memory for the current VS Code session (default)",
+                        "Store in VS Code SecretStorage (persists across sessions)"
+                    ],
+                    "default": "session",
+                    "description": "How vault passwords are remembered."
+                },
+                "ansibleVault.warnOnUnencryptedVaultFiles": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show a status-bar warning when a file matching a vault pattern is not encrypted."
+                },
+                "ansibleVault.vaultFilePatterns": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "default": [
+                        "*.vault",
+                        "vault.yml",
+                        "vault.yaml",
+                        "secrets.yml",
+                        "secrets.yaml",
+                        "credentials.yml",
+                        "credentials.yaml"
+                    ],
+                    "description": "File-name patterns that should always be encrypted. Used for workspace scanning, status-bar warnings, and the git pre-commit hook."
+                },
+                "ansibleVault.autoPromptOnOpen": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically prompt to open encrypted vault files in decrypted view when they are opened."
+                }
+            }
+        },
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "ansible-vault.openDecrypted",
+                    "when": "resourceScheme == file",
+                    "group": "ansible-vault@1"
+                },
+                {
+                    "command": "ansible-vault.viewDecryptedInline",
+                    "when": "resourceScheme == file",
+                    "group": "ansible-vault@2"
+                },
+                {
+                    "command": "ansible-vault.encryptFile",
+                    "when": "resourceScheme == file",
+                    "group": "ansible-vault@3"
+                },
+                {
+                    "command": "ansible-vault.rekey",
+                    "when": "resourceScheme == file || resourceScheme == vault",
+                    "group": "ansible-vault@4"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "ansible-vault.openDecrypted",
+                    "when": "resourceScheme == file",
+                    "group": "ansible-vault@1"
+                },
+                {
+                    "command": "ansible-vault.encryptFile",
+                    "when": "resourceScheme == file",
+                    "group": "ansible-vault@2"
+                },
+                {
+                    "command": "ansible-vault.rekey",
+                    "when": "resourceScheme == file",
+                    "group": "ansible-vault@3"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "ansible-vault.openDecrypted",
+                    "when": "resourceScheme == file",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "ansible-vault.openDecrypted",
+                "key": "ctrl+shift+v ctrl+shift+o",
+                "mac": "cmd+shift+v cmd+shift+o",
+                "when": "editorFocus"
+            },
+            {
+                "command": "ansible-vault.encryptFile",
+                "key": "ctrl+shift+v ctrl+shift+e",
+                "mac": "cmd+shift+v cmd+shift+e",
+                "when": "editorFocus"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.74.0"
+    }
+}
