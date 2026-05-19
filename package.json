@@ -3,13 +3,23 @@
     "displayName": "Ansible Vault for Windows",
     "description": "Read, edit, and create Ansible Vault files in VS Code without any external dependencies. Works on Windows without Python or the ansible CLI.",
     "version": "0.1.0",
-    "publisher": "ansible-vault-for-windows",
+    "publisher": "pauldechorgnat",
     "license": "MIT",
-    "categories": ["Other"],
-    "keywords": ["ansible", "vault", "encryption", "aes256", "security", "devops", "windows"],
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "ansible",
+        "vault",
+        "encryption",
+        "aes256",
+        "security",
+        "devops",
+        "windows"
+    ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/ansible-vault-for-windows/ansible-vault-for-windows"
+        "url": "https://github.com/pauldechorgnat/ansible-vault-for-windows"
     },
     "engines": {
         "vscode": "^1.74.0"
@@ -67,7 +77,11 @@
             "properties": {
                 "ansibleVault.rememberPassword": {
                     "type": "string",
-                    "enum": ["never", "session", "keychain"],
+                    "enum": [
+                        "never",
+                        "session",
+                        "keychain"
+                    ],
                     "enumDescriptions": [
                         "Ask for the password every time",
                         "Remember in memory for the current VS Code session (default)",
@@ -83,7 +97,9 @@
                 },
                 "ansibleVault.vaultFilePatterns": {
                     "type": "array",
-                    "items": { "type": "string" },
+                    "items": {
+                        "type": "string"
+                    },
                     "default": [
                         "*.vault",
                         "vault.yml",
@@ -166,6 +182,7 @@
         ]
     },
     "devDependencies": {
-        "@types/vscode": "^1.74.0"
+        "@types/vscode": "^1.74.0",
+        "@vscode/vsce": "^3.7.1"
     }
 }
