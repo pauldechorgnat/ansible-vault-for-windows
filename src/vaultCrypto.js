@@ -13,6 +13,11 @@
  *   bytes  0-31 : AES-256 encryption key
  *   bytes 32-63 : HMAC-SHA256 key
  *   bytes 64-79 : AES-256-CTR IV
+ *
+ * ansible-vault always applies PKCS7 padding to the plaintext before
+ * encrypting (even in CTR mode) and strips it after decrypting.  Without
+ * this, files written by this extension would be unreadable by the CLI,
+ * and files written by the CLI would show garbage bytes at the end.
  */
 
 const crypto = require('crypto');
@@ -22,6 +27,7 @@ const HEADER_V1_2_PREFIX = '$ANSIBLE_VAULT;1.2;AES256;';
 const ITERATIONS = 10000;
 const KEY_LEN = 32;
 const IV_LEN = 16;
+const BLOCK_SIZE = 16;
 const DERIVED_LEN = KEY_LEN * 2 + IV_LEN; // 80
 
 /**
@@ -48,6 +54,30 @@ function parseHeader(content) {
         return { version: '1.2', vaultId };
     }
     return null;
+}
+
+/** Add PKCS7 padding so length is a multiple of BLOCK_SIZE. */
+function pkcs7Pad(buf) {
+    const padLen = BLOCK_SIZE - (buf.length % BLOCK_SIZE);
+    return Buffer.concat([buf, Buffer.alloc(padLen, padLen)]);
+}
+
+/**
+ * Strip PKCS7 padding.
+ * Throws if the padding bytes are invalid so callers get a clear error.
+ */
+function pkcs7Unpad(buf) {
+    if (buf.length === 0) throw new Error('Empty plaintext after decryption');
+    const padLen = buf[buf.length - 1];
+    if (padLen < 1 || padLen > BLOCK_SIZE || padLen > buf.length) {
+        throw new Error(`Invalid PKCS7 padding byte: ${padLen}`);
+    }
+    for (let i = buf.length - padLen; i < buf.length; i++) {
+        if (buf[i] !== padLen) {
+            throw new Error('Invalid PKCS7 padding (inconsistent bytes)');
+        }
+    }
+    return buf.slice(0, buf.length - padLen);
 }
 
 /**
@@ -102,9 +132,15 @@ function decrypt(vaultText, password) {
         throw new Error('Incorrect password or corrupted vault (HMAC mismatch)');
     }
 
-    const decipher  = crypto.createDecipheriv('aes-256-ctr', key1, iv);
-    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-    return plaintext.toString('utf8');
+    const decipher = crypto.createDecipheriv('aes-256-ctr', key1, iv);
+    const padded   = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    let unpadded;
+    try {
+        unpadded = pkcs7Unpad(padded);
+    } catch (e) {
+        throw new Error(`Decryption produced invalid padding – ${e.message}`);
+    }
+    return unpadded.toString('utf8');
 }
 
 /**
@@ -120,7 +156,7 @@ function encrypt(plaintext, password, vaultId = null) {
 
     const cipher     = crypto.createCipheriv('aes-256-ctr', key1, iv);
     const ciphertext = Buffer.concat([
-        cipher.update(Buffer.from(plaintext, 'utf8')),
+        cipher.update(pkcs7Pad(Buffer.from(plaintext, 'utf8'))),
         cipher.final(),
     ]);
 

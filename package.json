@@ -2,7 +2,7 @@
     "name": "ansible-vault-for-windows",
     "displayName": "Ansible Vault for Windows",
     "description": "Read, edit, and create Ansible Vault files in VS Code without any external dependencies. Works on Windows without Python or the ansible CLI.",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "publisher": "pauldechorgnat",
     "license": "MIT",
     "categories": [
@@ -183,6 +183,6 @@
     },
     "devDependencies": {
         "@types/vscode": "^1.74.0",
-        "@vscode/vsce": "^3.7.1"
+        "@vscode/vsce": "^3.9.1"
     }
 }

@@ -71,8 +71,42 @@ The extension appears on the marketplace within a few minutes at:
 
 ## Releasing a new version later
 
+### Step 1 — Run the tests
+
 ```bash
-npx vsce publish patch   # 0.1.0 → 0.1.1
-npx vsce publish minor   # 0.1.0 → 0.2.0
-npx vsce publish major   # 0.1.0 → 1.0.0
+node test/cryptoTest.js
 ```
+
+All tests must pass before publishing.
+
+### Step 2 — Bump the version
+
+Edit `package.json` and increment `"version"` following semver, **or** let `vsce` do it automatically in the next step.
+
+Keep both in sync: if you bump manually, use the same number in the `vsce publish` command.
+
+### Step 3 — Rebuild and package locally for a smoke test
+
+```bash
+npx vsce package
+code --install-extension ansible-vault-for-windows-<version>.vsix
+```
+
+Open a real vault file in VS Code and verify encrypt/decrypt works end-to-end.
+
+### Step 4 — Publish
+
+```bash
+# Bump patch (0.2.0 → 0.2.1), minor (→ 0.3.0) or major (→ 1.0.0):
+npx vsce publish patch
+npx vsce publish minor
+npx vsce publish major
+
+# Or publish exactly the version already written in package.json:
+npx vsce publish
+```
+
+`vsce publish <increment>` automatically updates `package.json` and creates a git tag. If you bumped the version manually in Step 2, use `npx vsce publish` (no increment argument) to avoid a double-bump.
+
+The updated extension appears on the marketplace within a few minutes at:
+`https://marketplace.visualstudio.com/items?itemName=pauldechorgnat.ansible-vault-for-windows`
